@@ -70,6 +70,8 @@ var shoppingCart = (function() {
       saveCart();
     }
   
+
+    
     // Remove all items from cart
     obj.removeItemFromCartAll = function(name) {
       for(var item in cart) {

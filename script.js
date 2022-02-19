@@ -206,4 +206,5 @@ var shoppingCart = (function() {
   });
   
   displayCart();
-  
+  var title = $(".name");
+  title.innerHTML = document.title;  

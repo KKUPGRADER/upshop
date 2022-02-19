@@ -1,202 +1,209 @@
-/*
- * jQuery Simple Shopping Cart v0.1
- * Basis shopping cart using javascript/Jquery.
- *
- * Authour : Sirisha
- */
+// ************************************************
+// Shopping Cart API
+// ************************************************
 
-
-/* '(function(){})();' this function is used, to make all variables of the plugin Private */
-
-(function ($, window, document, undefined) {
-
-    /* Default Options */
-    var defaults = {
-        cart: [],
-        addtoCartClass: '.sc-add-to-cart',
-        cartProductListClass: '.cart-products-list',
-        totalCartCountClass: '.total-cart-count',
-        totalCartCostClass: '.total-cart-cost',
-        showcartID : '#show-cart',
-        itemCountClass : '.item-count'
-    };
-
+var shoppingCart = (function() {
+    // =============================
+    // Private methods and propeties
+    // =============================
+    cart = [];
+    
+    // Constructor
     function Item(name, price, count) {
-        this.name = name;
-        this.price = price;
-        this.count = count;
+      this.name = name;
+      this.price = price;
+      this.count = count;
     }
-    /*Constructor function*/
-    function simpleCart(domEle, options) {
-
-        /* Merge user settings with default, recursively */
-        this.options = $.extend(true, {}, defaults, options);
-        //Cart array
-        this.cart = [];
-        //Dom Element
-        this.cart_ele = $(domEle);
-        //Initial init function
-        this.init();
+    
+    // Save cart
+    function saveCart() {
+      sessionStorage.setItem('shoppingCart', JSON.stringify(cart));
     }
-
-
-    /*plugin functions */
-    $.extend(simpleCart.prototype, {
-        init: function () {
-            this._setupCart();
-            this._setEvents();
-            this._loadCart();
-            this._updateCartDetails();
-        },
-        _setupCart: function () {
-            this.cart_ele.addClass("cart-grid panel panel-defaults");
-            this.cart_ele.append("<div class='panel-heading cart-heading'><div class='total-cart-count'>Your Cart 0 items</div><div class='spacer'></div><i class='fa fa-dollar total-cart-cost'>0</i><div></div></div>")
-            this.cart_ele.append("<div class='panel-body cart-body'><div class='cart-products-list' id='show-cart'><!-- Dynamic Code from Script comes here--></div></div>")
-            this.cart_ele.append("<div class='cart-summary-container'>\n\
-                                <div class='cart-offer'></div>\n\
-                                        <div class='cart-total-amount'>\n\
-                                            <div>Total</div>\n\
-                                            <div class='spacer'></div>\n\
-                                            <div><i class='fa fa-dollar total-cart-cost'>0</i></div>\n\
-                                            </div>\n\
-                                            <div class='cart-checkout'>\n\
-                                            <form action='#'>\n\
-                                                <button type='submit' class='btn btn-primary'>Proceed To Checkout</button>\n\
-                                            </form>\n\
-                                        </div>\n\
-                                 </div>");
-        },
-        _addProductstoCart: function () {
-        },
-        _updateCartDetails: function () {
-            var mi = this;
-            $(this.options.cartProductListClass).html(mi._displayCart());
-            $(this.options.totalCartCountClass).html("Your Cart " + mi._totalCartCount() + " items");
-            $(this.options.totalCartCostClass).html(mi._totalCartCost());
-        },
-        _setCartbuttons: function () {
-
-        },
-        _setEvents: function () {
-            var mi = this;
-            $(this.options.addtoCartClass).on("click", function (e) {
-                e.preventDefault();
-                var name = $(this).attr("data-name");
-                var cost = Number($(this).attr("data-price"));
-                mi._addItemToCart(name, cost, 1);
-                mi._updateCartDetails();
-            });
-
-            $(this.options.showcartID).on("change", this.options.itemCountClass, function (e) {
-                var ci = this;
-        e.preventDefault();
-        var count = $(this).val();
-        var name = $(this).attr("data-name");
-        var cost = Number($(this).attr("data-price"));
-        mi._removeItemfromCart(name, cost, count);
-        mi._updateCartDetails();
-    });
-
-        },
-        /* Helper Functions */
-        _addItemToCart: function (name, price, count) {
-            for (var i in this.cart) {
-                if (this.cart[i].name === name) {
-                    this.cart[i].count++;
-                    this.cart[i].price = price * this.cart[i].count;
-                    this._saveCart();
-                    return;
-                }
-            }
-            var item = new Item(name, price, count);
-            this.cart.push(item);
-            this._saveCart();
-        },
-        _removeItemfromCart: function (name, price, count) {
-            for (var i in this.cart) {
-                if (this.cart[i].name === name) {
-                    var singleItemCost = Number(price / this.cart[i].count);
-                    this.cart[i].count = count;
-                    this.cart[i].price = singleItemCost * count;
-                    if (count == 0) {
-                        this.cart.splice(i, 1);
-                    }
-                    break;
-                }
-            }
-            this._saveCart();
-        },
-        _clearCart: function () {
-            this.cart = [];
-            this._saveCart();
-        },
-        _totalCartCount: function () {
-            return this.cart.length;
-        },
-        _displayCart: function () {
-            var cartArray = this._listCart();
-            console.log(cartArray);
-            var output = "";
-            if (cartArray.length <= 0) {
-                output = "<h4>Your cart is empty</h4>";
-            }
-            for (var i in cartArray) {
-                output += "<div class='cart-each-product'>\n\
-                       <div class='name'>" + cartArray[i].name + "</div>\n\
-                       <div class='quantityContainer'>\n\
-                            <input type='number' class='quantity form-control item-count' data-name='" + cartArray[i].name + "' data-price='" + cartArray[i].price + "' min='0' value=" + cartArray[i].count + " name='number'>\n\
-                       </div>\n\
-                       <div class='quantity-am'><i class='fa fa-dollar'>" + cartArray[i].price + "</i></div>\n\
-                       </div>";
-            }
-            return output;
-        },
-        _totalCartCost: function () {
-            var totalCost = 0;
-            for (var i in this.cart) {
-                totalCost += this.cart[i].price;
-            }
-            return totalCost;
-        },
-        _listCart: function () {
-            var cartCopy = [];
-            for (var i in this.cart) {
-                var item = this.cart[i];
-                var itemCopy = {};
-                for (var p in item) {
-                    itemCopy[p] = item[p];
-                }
-                cartCopy.push(itemCopy);
-            }
-            return cartCopy;
-        },
-        _calGST: function () {
-            var GSTPercent = 18;
-            var totalcost = this.totalCartCost();
-            var calGST = Number((totalcost * GSTPercent) / 100);
-            return calGST;
-        },
-        _saveCart: function () {
-            localStorage.setItem("shoppingCart", JSON.stringify(this.cart));
-        },
-        _loadCart: function () {
-            this.cart = JSON.parse(localStorage.getItem("shoppingCart"));
-            if (this.cart === null) {
-                this.cart = [];
-            }
+    
+      // Load cart
+    function loadCart() {
+      cart = JSON.parse(sessionStorage.getItem('shoppingCart'));
+    }
+    if (sessionStorage.getItem("shoppingCart") != null) {
+      loadCart();
+    }
+    
+  
+    // =============================
+    // Public methods and propeties
+    // =============================
+    var obj = {};
+    
+    // Add to cart
+    obj.addItemToCart = function(name, price, count) {
+      for(var item in cart) {
+        if(cart[item].name === name) {
+          cart[item].count ++;
+          saveCart();
+          return;
         }
-    });
-    /* Defining the Structure of the plugin 'simpleCart'*/
-    $.fn.simpleCart = function (options) {
-        return this.each(function () {
-            $.data(this, "simpleCart", new simpleCart(this));
-            console.log($(this, "simpleCart"));
-        });
+      }
+      var item = new Item(name, price, count);
+      cart.push(item);
+      saveCart();
     }
-    ;
-})(jQuery, window, document);
-
-
-$(document).ready(function () {
-    $('#cart').simpleCart();
-});
+    // Set count from item
+    obj.setCountForItem = function(name, count) {
+      for(var i in cart) {
+        if (cart[i].name === name) {
+          cart[i].count = count;
+          break;
+        }
+      }
+    };
+    // Remove item from cart
+    obj.removeItemFromCart = function(name) {
+        for(var item in cart) {
+          if(cart[item].name === name) {
+            cart[item].count --;
+            if(cart[item].count === 0) {
+              cart.splice(item, 1);
+            }
+            break;
+          }
+      }
+      saveCart();
+    }
+  
+    // Remove all items from cart
+    obj.removeItemFromCartAll = function(name) {
+      for(var item in cart) {
+        if(cart[item].name === name) {
+          cart.splice(item, 1);
+          break;
+        }
+      }
+      saveCart();
+    }
+  
+    // Clear cart
+    obj.clearCart = function() {
+      cart = [];
+      saveCart();
+    }
+  
+    // Count cart 
+    obj.totalCount = function() {
+      var totalCount = 0;
+      for(var item in cart) {
+        totalCount += cart[item].count;
+      }
+      return totalCount;
+    }
+  
+    // Total cart
+    obj.totalCart = function() {
+      var totalCart = 0;
+      for(var item in cart) {
+        totalCart += cart[item].price * cart[item].count;
+      }
+      return Number(totalCart.toFixed(2));
+    }
+  
+    // List cart
+    obj.listCart = function() {
+      var cartCopy = [];
+      for(i in cart) {
+        item = cart[i];
+        itemCopy = {};
+        for(p in item) {
+          itemCopy[p] = item[p];
+  
+        }
+        itemCopy.total = Number(item.price * item.count).toFixed(2);
+        cartCopy.push(itemCopy)
+      }
+      return cartCopy;
+    }
+  
+    // cart : Array
+    // Item : Object/Class
+    // addItemToCart : Function
+    // removeItemFromCart : Function
+    // removeItemFromCartAll : Function
+    // clearCart : Function
+    // countCart : Function
+    // totalCart : Function
+    // listCart : Function
+    // saveCart : Function
+    // loadCart : Function
+    return obj;
+  })();
+  
+  
+  // *****************************************
+  // Triggers / Events
+  // ***************************************** 
+  // Add item
+  $('.add-to-cart').click(function(event) {
+    event.preventDefault();
+    var name = $(this).data('name');
+    var price = Number($(this).data('price'));
+    shoppingCart.addItemToCart(name, price, 1);
+    displayCart();
+  });
+  
+  // Clear items
+  $('.clear-cart').click(function() {
+    shoppingCart.clearCart();
+    displayCart();
+  });
+  
+  
+  function displayCart() {
+    var cartArray = shoppingCart.listCart();
+    var output = "";
+    for(var i in cartArray) {
+      output += "<tr>"
+        + "<th scope='row'>" + cartArray[i].name + "</td>" 
+        + "<td  class='align-middle'>(" + cartArray[i].price + ")</td>"
+        + "<td  class='align-middle'><div class='input-group'><button class='minus-item input-group-addon btn btn-primary' data-name=" + cartArray[i].name + ">-</button>"
+        + "<input type='number' class='item-count form-control' data-name='" + cartArray[i].name + "' value='" + cartArray[i].count + "'>"
+        + "<button class='plus-item btn btn-primary input-group-addon' data-name=" + cartArray[i].name + ">+</button></div></td>"
+        + " = " 
+        + "<td  class='align-middle'>" + cartArray[i].total + "</td>" 
+        + "<td  class='align-middle'><button class='delete-item btn btn-link btn-floating' data-name=" + cartArray[i].name + "><i class='fas fa-trash-alt text-danger'></i></button></td>"
+        +  "</tr>";
+    }
+    $('.show-cart').html(output);
+    $('.total-cart').html(shoppingCart.totalCart());
+    $('.total-count').html(shoppingCart.totalCount());
+  }
+  
+  // Delete item button
+  
+  $('.show-cart').on("click", ".delete-item", function(event) {
+    var name = $(this).data('name')
+    shoppingCart.removeItemFromCartAll(name);
+    displayCart();
+  })
+  
+  
+  // -1
+  $('.show-cart').on("click", ".minus-item", function(event) {
+    var name = $(this).data('name')
+    shoppingCart.removeItemFromCart(name);
+    displayCart();
+  })
+  // +1
+  $('.show-cart').on("click", ".plus-item", function(event) {
+    var name = $(this).data('name')
+    shoppingCart.addItemToCart(name);
+    displayCart();
+  })
+  
+  // Item count input
+  $('.show-cart').on("change", ".item-count", function(event) {
+     var name = $(this).data('name');
+     var count = Number($(this).val());
+    shoppingCart.setCountForItem(name, count);
+    displayCart();
+  });
+  
+  displayCart();
+  

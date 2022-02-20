@@ -224,15 +224,3 @@ document.querySelector('#m-share').addEventListener('click', function () {
     })
   }
 });
-var $temp = $("<input>");
-var $url = $(location).attr("href");
-var cshare = $("#cshare");
-cshare.on('click', function () {
-  $("body").append($temp);
-  $temp.val($url).select();
-  document.execCommand("copy");
-  $temp.remove();
-});
-setTimeout(function () {
-  cshare.setAttribute("data-mdb-original-title", "Link Copied!!!");
-}, 1000);

@@ -104,7 +104,7 @@
                             <th scope="col">Price</th>
                         </tr>
                     </thead>
-                    <tbody class="show-cart"><span class="m-auto">Your Cart is empty </span></tbody>
+                    <tbody class="show-cart"></tbody>
                 </table>
 
                 <hr />
@@ -117,7 +117,10 @@
 
             <div class="d-flex justify-content-center mb-4">
                 <button class="btn btn-danger mx-3 clear-cart">Clear Cart</button>
-                <button type="button" class="btn btn-success" onclick="takeshot()">
+                <button type="button" class="btn btn-success"   data-mdb-toggle="collapse"
+                data-mdb-target="#form"
+                aria-expanded="false"
+                aria-controls="form">
                     Checkout
                 </button>
                 <a type="button" href="/" class="btn btn-outline-primary ms-3">
@@ -125,7 +128,7 @@
                 </a>
             </div>
 
-            <form class="place-order"  onsubmit="return payout()">
+            <form class="place-order collapse mt-3" id="form" onsubmit="return payout()">
                 <div class="container py-5">
                     <div class="row d-flex justify-content-center align-items-center">
                         <div class="col">

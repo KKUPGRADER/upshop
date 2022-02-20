@@ -208,5 +208,42 @@ var shoppingCart = (function() {
   });
   
   displayCart();
-  var title = $(".name");
-  title.innerHTML = document.title;  
+  var title = document.title;
+  $("name").html( title );
+  $(".buy-now,.checkout").attr("onclick", "location.href='/checkout.html';");
+  $("a.home,a.navbar-brand").attr("href", "/");
+
+  document.querySelector('#m-share').addEventListener('click', function() {
+    if (typeof navigator.share === 'undefined') {
+      log("No share API available!");
+    } else {
+      navigator.share({
+        url: document.URL,
+        title: document.title,
+        text: document.description
+      })
+    }
+  });
+  var $temp = $("<input>");
+  var $url = $(location).attr("href");
+  var cshare =$("#cshare");
+  cshare.on('click', function() {
+    $("body").append($temp);
+    $temp.val($url).select();
+    document.execCommand("copy");
+    $temp.remove();
+  });
+  setTimeout(function() {
+          cshare.setAttribute("data-mdb-original-title", "Link Copied!!!");
+      }, 1000);
+      function send_handle(){
+
+        let num=document.getElementById("number").value;
+      
+        let msg= document.getElementById("msg").value;
+      
+          let name= document.getElementById("name").value;
+        
+        var win = window.open(`https://wa.me/${num}?text=I%27m%20api%20msg%20hello%20${name}%20friend%20${msg}`, '_blank');
+       // win.focus();
+      }

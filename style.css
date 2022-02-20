@@ -115,6 +115,7 @@ a:active {
 a img {
   border: 0;
 }
+.hide,.hidden{display: none;}
 .divider:after,
 .divider:before {
   content: "";
@@ -207,6 +208,15 @@ body.modal-open {
   }
   100% {
     transform: translate3d(85px, 0, 0);
+  }
+}
+@keyframes slide-right {
+  0% {
+      transform: translateY(0)
+  }
+
+  to {
+      transform: translateY(-2px)
   }
 }
 /*Shrinking for mobile*/

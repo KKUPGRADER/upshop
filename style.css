@@ -253,3 +253,7 @@ tbody.show-cart:empty:before {
   font-family: "Roboto";
   font-weight: 700;
 }
+.col-lg-4 .bg-image img {
+  width: 100;
+height: auto;
+max-height: 15rem;}
